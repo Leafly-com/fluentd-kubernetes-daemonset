@@ -56,15 +56,26 @@
   s3_bucket "#{ENV['S3_BUCKET_NAME']}"
 </match>
 <%  when "rsyslog"%>
-<match **>
-  type remote_syslog
-  # host -- host
-  # tag -- pod_name[container_name]
-  hostname "#{record['kubernetes']['host']}"
-  tag "#{record['kubernetes']['pod_name']}[#{record['kubernetes']['container_name']}]"
+<filter kubernetes.**>
+  type record_transformer
+  <record>
+    # host.pod_name.container_name
+    tag kubernetes.${record['kubernetes']['host']}.${record['kubernetes']['pod_name']}.${record['kubernetes']['container_name']}
+  </record>
+</filter>
 
-  host "#{ENV['SYSLOG_HOST']}"
-  port "#{ENV['SYSLOG_PORT']}"
+<match kubernetes.**>
+  type forest
+  subtype remote_syslog
+  <template>
+    # hostname -- host
+    # tag -- pod_name[container_name]
+    hostname ${tag_parts[0]}
+    tag ${tag_parts[1]}[${tag_parts[2]}]
+
+    host "#{ENV['SYSLOG_HOST']}"
+    port "#{ENV['SYSLOG_PORT']}"
+  </template>
 </match>
 <% when "stackdriver"%>
 <match **>
