@@ -15,6 +15,7 @@ RUN set -ex \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && gem install fluent-plugin-secure-forward \
     && gem install fluent-plugin-record-reformer \
+    && gem install fluent-plugin-forest -v 0.3.3 \
     && gem install fluent-plugin-remote_syslog -v 0.3.3 \
     && gem install fluent-plugin-kubernetes_metadata_filter \
     && apk del .build-deps \
